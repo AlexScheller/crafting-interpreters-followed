@@ -1,0 +1,6 @@
+# Java
+*.class
+
+# C
+# Always compile to a "bin" folder so that binaries can be ignored.
+bin/
