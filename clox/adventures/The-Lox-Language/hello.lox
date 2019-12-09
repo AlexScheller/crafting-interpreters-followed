@@ -1,0 +1,69 @@
+class Node {
+	init(value) {
+		this.value = value;
+		this.next = nil;
+	}
+}
+
+class LinkedList {
+	
+	init() {
+		this.head = nil;
+		this.tail = nil;
+		this.length = 0;
+	}
+
+	append(value) {
+		var node = Node(value);
+		print "Appending value: " + value;
+		if (this.tail == nil) {
+			this.head = node;
+			this.tail = node;
+			this.length = this.length + 1;
+		} else {
+			this.tail.next = node;
+			this.tail = node;
+			this.length = this.length + 1;
+		}
+	}
+
+	indexOf(sought) {
+		var curr = this.head;
+		var index = 0;
+		while (curr != nil) {
+			if (curr.value == sought) {
+				return index;
+			}
+			index = index + 1;
+			curr = curr.next;
+		}
+		return -1;
+	}
+
+	toString() {
+		var ret = "[";
+		var curr = this.head;
+		while (curr != nil) {
+			print "Curr value: " + curr.value;
+			if (curr.next != nil) {
+				ret = ret + curr.value + ", ";
+			} else {
+				ret = ret + curr.value;
+			}
+			curr = curr.next;
+		}
+		ret = ret + "]";
+		return ret;
+	}
+
+}
+
+var list = LinkedList();
+list.append("hello");
+list.append("there");
+list.append("friend!");
+
+print list.toString();
+
+print list.indexOf("there");
+print list.indexOf("hola");
