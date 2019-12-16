@@ -1,0 +1,7 @@
+// this is a comment
+(( %)){} // grouping stuff
+!*+-/=<> <= == // operators
+"Here is a valid string"
+"Here is a multiline
+One"
+!"Here is an unterminated one
