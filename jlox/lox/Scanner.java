@@ -10,7 +10,7 @@ import static lox.TokenType.*;
 class Scanner {
 
 	private final String source;
-	private final List<Token> tokens = new ArrayList<>();
+	private final TokenList tokens;
 
 	private int start = 0;
 	private int current = 0;
@@ -19,15 +19,26 @@ class Scanner {
 
 	Scanner(String source) {
 		this.source = source;
+		this.tokens = new TokenList();
 	}
 
-	public List<Token> scanTokens() {
+	public String stateAsString() {
+		return String.format(
+			"Start: %d, Current: %d, Line: %d, Col: %d",
+			this.start, this.current, this.line, this.col
+		);
+	}
+
+	public String tokensAsString() {
+		return this.tokens.asString();
+	}
+
+	public void scanTokens() {
 		while(!this.isAtEnd()) {
 			this.start = this.current;
 			this.scanToken();
 		}
-		this.tokens.add(new Token(EOF, "", null, this.line, this.col));
-		return tokens;
+		this.tokens.addToken(new Token(EOF, "", null, this.line, this.col));
 	}
 
 	public void scanToken() {
@@ -109,15 +120,15 @@ class Scanner {
 		return this.source.charAt(this.current - 1);
 	}
 
-	private Token addToken(TokenType type) {
-		return this.addToken(type, null);
+	private void addToken(TokenType type) {
+		this.addToken(type, null);
 	}
 
-	private Token addToken(TokenType type, Object literal) {
+	private void addToken(TokenType type, Object literal) {
 		String text = this.source.substring(this.start, this.current);
-		Token ret = new Token(type, text, literal, this.line, this.col);
-		this.tokens.add(ret);
-		return ret;
+		this.tokens.addToken(
+			new Token(type, text, literal, this.line, this.col)
+		);
 	}
 
 }

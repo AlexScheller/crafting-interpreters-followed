@@ -17,7 +17,7 @@ class Token {
 		this.col = col;
 	}
 
-	public String toString() {
+	public String asString() {
 		return "<" + type + " " + lexeme + " " + literal + ">";
 	}
 
