@@ -1,6 +1,12 @@
 // this is a comment
 (( %)){} // grouping stuff
 !*+-/=<> <= == // operators
+// here is a number
+12.32
+// here is another
+15
+// here is a broken number
+34.34 "hello" .34
 "Here is a valid string"
 "Here is a multiline
 One"

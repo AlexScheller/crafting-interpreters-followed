@@ -36,6 +36,18 @@ class Scanner {
 		return this.tokens.asString();
 	}
 
+	private void readCurrentLineText() {
+		int tempCurrent = this.current;
+		StringBuilder sb = new StringBuilder();
+		while (
+			tempCurrent < this.source.length() &&
+			this.source.charAt(tempCurrent) != '\n'
+		) {
+			sb.append(this.source.charAt(tempCurrent++));
+		}
+		this.currentLineText = sb.toString();
+	}
+
 	public void scanTokens() {
 		while(!this.isAtEnd()) {
 			this.start = this.current;
@@ -79,21 +91,29 @@ class Scanner {
 				this.readCurrentLineText();
 				break;
 			default:
-				Lox.error(line, col, "Unexpected character '" + c + "'.", this.currentLineText);
+				if (this.isDigit(c)) {
+					this.handleNumber();
+				} else {
+					Lox.error(line, col, "Unexpected character '" + c + "'.", this.currentLineText, "scanning");
+				}
 				break;
 		}
 	}
 
-	private void readCurrentLineText() {
-		int tempCurrent = this.current;
-		StringBuilder sb = new StringBuilder();
-		while (
-			tempCurrent < this.source.length() &&
-			this.source.charAt(tempCurrent) != '\n'
-		) {
-			sb.append(this.source.charAt(tempCurrent++));
+	private void handleNumber() {
+		while (this.isDigit(this.peek())) this.advanceCurrent();
+		// fractional part
+		if (this.peek() == '.' && this.isDigit(this.peekNext())) {
+			// consume the '.'
+			this.advanceCurrent();
+			while (this.isDigit(this.peek())) this.advanceCurrent();
 		}
-		this.currentLineText = sb.toString();
+		this.addToken(
+			NUMBER,
+			Double.parseDouble(
+				this.source.substring(this.start, this.current)
+			)
+		);
 	}
 
 	private void handleString() {
@@ -105,7 +125,7 @@ class Scanner {
 			this.advanceCurrent();
 		}
 		if (this.isAtEnd()) {
-			Lox.error(this.line, this.col, "Unterminated string.", this.currentLineText);
+			Lox.error(this.line, this.col, "Unterminated string.", this.currentLineText, "scanning");
 			return;
 		}
 		this.advanceCurrent(); // closing '"'
@@ -124,6 +144,15 @@ class Scanner {
 	private char peek() {
 		if (this.isAtEnd()) return '\0';
 		return this.source.charAt(this.current);
+	}
+
+	private char peekNext() {
+		if (this.current + 1 >= this.source.length()) return '\0';
+		return source.charAt(this.current + 1);
+	}
+
+	private boolean isDigit(char c) {
+		return c >= '0' && c <= '9';
 	}
 
 	private boolean isAtEnd() {
