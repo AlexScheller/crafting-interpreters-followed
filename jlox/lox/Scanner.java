@@ -17,9 +17,12 @@ class Scanner {
 	private int line = 1;
 	private int col = 1;
 
+	private String currentLineText;
+
 	Scanner(String source) {
 		this.source = source;
 		this.tokens = new TokenList();
+		this.readCurrentLineText();
 	}
 
 	public String stateAsString() {
@@ -73,11 +76,24 @@ class Scanner {
 			case '\n':
 				this.line++;
 				this.col = 0;
+				this.readCurrentLineText();
 				break;
 			default:
-				Lox.error(line, col, "Unexpected character '" + c + "'.");
+				Lox.error(line, col, "Unexpected character '" + c + "'.", this.currentLineText);
 				break;
 		}
+	}
+
+	private void readCurrentLineText() {
+		int tempCurrent = this.current;
+		StringBuilder sb = new StringBuilder();
+		while (
+			tempCurrent < this.source.length() &&
+			this.source.charAt(tempCurrent) != '\n'
+		) {
+			sb.append(this.source.charAt(tempCurrent++));
+		}
+		this.currentLineText = sb.toString();
 	}
 
 	private void handleString() {
@@ -89,7 +105,7 @@ class Scanner {
 			this.advanceCurrent();
 		}
 		if (this.isAtEnd()) {
-			Lox.error(this.line, this.col, "Unterminated string.");
+			Lox.error(this.line, this.col, "Unterminated string.", this.currentLineText);
 			return;
 		}
 		this.advanceCurrent(); // closing '"'
