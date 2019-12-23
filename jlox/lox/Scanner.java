@@ -19,6 +19,28 @@ class Scanner {
 
 	private String currentLineText;
 
+	private static final Map<String, TokenType> keywords;
+
+	static {
+		keywords = new HashMap<>();
+		keywords.put("class", CLASS);
+		keywords.put("this", THIS);
+		keywords.put("super", SUPER);
+		keywords.put("var", VAR);
+		keywords.put("fun", FUN);
+		keywords.put("nil", NIL);
+		keywords.put("print", PRINT);
+		keywords.put("return", RETURN);
+		keywords.put("and", AND);
+		keywords.put("or", OR);
+		keywords.put("if", IF);
+		keywords.put("else", ELSE);
+		keywords.put("for", FOR);
+		keywords.put("while", WHILE);
+		keywords.put("false", FALSE);
+		keywords.put("true", TRUE);
+	}
+
 	Scanner(String source) {
 		this.source = source;
 		this.tokens = new TokenList();
@@ -93,11 +115,21 @@ class Scanner {
 			default:
 				if (this.isDigit(c)) {
 					this.handleNumber();
+				} else if (this.isAlpha(c)) {
+					this.handleIdentifier();
 				} else {
 					Lox.error(line, col, "Unexpected character '" + c + "'.", this.currentLineText, "scanning");
 				}
 				break;
 		}
+	}
+
+	private void handleIdentifier() {
+		while (this.isAlphaNumberic(this.peek())) this.advanceCurrent();
+		String text = source.substring(start, current);
+		TokenType type = keywords.get(text);
+		if (type == null) type = IDENTIFIER;
+		this.addToken(type);
 	}
 
 	private void handleNumber() {
@@ -149,6 +181,16 @@ class Scanner {
 	private char peekNext() {
 		if (this.current + 1 >= this.source.length()) return '\0';
 		return source.charAt(this.current + 1);
+	}
+
+	private boolean isAlpha(char c) {
+		return (c >= 'a' && c <= 'z') ||
+			   (c >= 'A' && c <= 'Z') ||
+			   c == '_';
+	}
+
+	private boolean isAlphaNumberic(char c) {
+		return this.isAlpha(c) || this.isDigit(c);
 	}
 
 	private boolean isDigit(char c) {

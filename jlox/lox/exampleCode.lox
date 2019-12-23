@@ -1,3 +1,10 @@
+fun hello(name) {
+    if (name == nil) {
+        name = 'you';
+    }
+    print "hello " + name + "!";
+}
+
 // this is a comment
 (( %)){} // grouping stuff
 !*+-/=<> <= == // operators
