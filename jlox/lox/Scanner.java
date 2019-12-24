@@ -9,15 +9,13 @@ import static lox.TokenType.*;
 
 class Scanner {
 
-	private final String source;
+	private final SourceCode source;
 	private final TokenList tokens;
 
-	private int start = 0;
+	private int tokenStart = 0;
 	private int current = 0;
 	private int line = 1;
 	private int col = 1;
-
-	private String currentLineText;
 
 	private static final Map<String, TokenType> keywords;
 
@@ -42,15 +40,14 @@ class Scanner {
 	}
 
 	Scanner(String source) {
-		this.source = source;
+		this.source = new SourceCode(source);
 		this.tokens = new TokenList();
-		this.readCurrentLineText();
 	}
 
 	public String stateAsString() {
 		return String.format(
 			"Start: %d, Current: %d, Line: %d, Col: %d",
-			this.start, this.current, this.line, this.col
+			this.tokenStart, this.current, this.line, this.col
 		);
 	}
 
@@ -58,27 +55,15 @@ class Scanner {
 		return this.tokens.asString();
 	}
 
-	private void readCurrentLineText() {
-		int tempCurrent = this.current;
-		StringBuilder sb = new StringBuilder();
-		while (
-			tempCurrent < this.source.length() &&
-			this.source.charAt(tempCurrent) != '\n'
-		) {
-			sb.append(this.source.charAt(tempCurrent++));
-		}
-		this.currentLineText = sb.toString();
-	}
-
 	public void scanTokens() {
 		while(!this.isAtEnd()) {
-			this.start = this.current;
-			this.scanToken();
+			this.tokenStart = this.current;
+			this.scanNextToken();
 		}
 		this.tokens.addToken(new Token(EOF, "", null, this.line, this.col));
 	}
 
-	public void scanToken() {
+	public void scanNextToken() {
 		char c = this.advanceCurrent();
 		switch (c) {
 			case '(': this.addToken(LEFT_PAREN); break;
@@ -110,7 +95,6 @@ class Scanner {
 			case '\n':
 				this.line++;
 				this.col = 0;
-				this.readCurrentLineText();
 				break;
 			default:
 				if (this.isDigit(c)) {
@@ -118,7 +102,12 @@ class Scanner {
 				} else if (this.isAlpha(c)) {
 					this.handleIdentifier();
 				} else {
-					Lox.error(line, col, "Unexpected character '" + c + "'.", this.currentLineText, "scanning");
+					Lox.error(
+						this.line, this.col,
+						"Unexpected character '" + c + "'.",
+						this.source.getLine(this.line - 1),
+						"scanning"
+					);
 				}
 				break;
 		}
@@ -126,7 +115,7 @@ class Scanner {
 
 	private void handleIdentifier() {
 		while (this.isAlphaNumberic(this.peek())) this.advanceCurrent();
-		String text = source.substring(start, current);
+		String text = source.substring(this.tokenStart, this.current);
 		TokenType type = keywords.get(text);
 		if (type == null) type = IDENTIFIER;
 		this.addToken(type);
@@ -143,7 +132,7 @@ class Scanner {
 		this.addToken(
 			NUMBER,
 			Double.parseDouble(
-				this.source.substring(this.start, this.current)
+				this.source.substring(this.tokenStart, this.current)
 			)
 		);
 	}
@@ -157,12 +146,17 @@ class Scanner {
 			this.advanceCurrent();
 		}
 		if (this.isAtEnd()) {
-			Lox.error(this.line, this.col, "Unterminated string.", this.currentLineText, "scanning");
+			Lox.error(
+				this.line, this.col,
+				"Unterminated string.",
+				this.source.getLine(this.line - 1),
+				"scanning"
+			);
 			return;
 		}
 		this.advanceCurrent(); // closing '"'
 		// trim quotes
-		String value = this.source.substring(this.start + 1, this.current - 1);
+		String value = this.source.substring(this.tokenStart + 1, this.current - 1);
 		this.addToken(STRING, value);
 	}
 
@@ -212,7 +206,7 @@ class Scanner {
 	}
 
 	private void addToken(TokenType type, Object literal) {
-		String text = this.source.substring(this.start, this.current);
+		String text = this.source.substring(this.tokenStart, this.current);
 		this.tokens.addToken(
 			new Token(type, text, literal, this.line, this.col)
 		);
