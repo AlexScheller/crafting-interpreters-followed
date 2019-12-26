@@ -5,6 +5,11 @@ fun hello(name) {
     print "hello " + name + "!";
 }
 
+/*
+Lox now supports multiline comments
+and it keeps supporting them
+*/
+
 // this is a comment
 (( %)){} // grouping stuff
 !*+-/=<> <= == // operators
@@ -18,3 +23,4 @@ fun hello(name) {
 "Here is a multiline
 One"
 !"Here is an unterminated one
+/*

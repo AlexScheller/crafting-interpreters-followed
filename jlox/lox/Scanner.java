@@ -76,13 +76,36 @@ class Scanner {
 			case '+': this.addToken(PLUS); break;
 			case ';': this.addToken(SEMICOLON); break;
 			case '*': this.addToken(STAR); break;
-			case '!': this.addToken(this.nextMatches('=') ? BANG_EQUAL : BANG); break;
-			case '=': this.addToken(this.nextMatches('=') ? BANG_EQUAL : EQUAL); break;
-			case '<': this.addToken(this.nextMatches('=') ? LESS_EQUAL : LESS); break;
-			case '>': this.addToken(this.nextMatches('=') ? GREATER_EQUAL : GREATER); break;
+			case '!': this.addToken(this.advanceCurrentIfNextMatches('=') ? BANG_EQUAL : BANG); break;
+			case '=': this.addToken(this.advanceCurrentIfNextMatches('=') ? BANG_EQUAL : EQUAL); break;
+			case '<': this.addToken(this.advanceCurrentIfNextMatches('=') ? LESS_EQUAL : LESS); break;
+			case '>': this.addToken(this.advanceCurrentIfNextMatches('=') ? GREATER_EQUAL : GREATER); break;
 			case '/':
-				if (this.nextMatches('/')) {
+				if (this.advanceCurrentIfNextMatches('/')) {
 					while (this.peek() != '\n' && !this.isAtEnd()) this.advanceCurrent();
+				} else if (this.advanceCurrentIfNextMatches('*')) { // begin comment block
+					boolean commentFinished = false;
+					int openLine = this.line;
+					int openCol = this.col;
+					for (char curr = this.advanceCurrent(); !this.isAtEnd(); curr = this.advanceCurrent()) {
+						// System.out.println("Parsing comment, curr char: " + curr);
+						// System.out.println(this.stateAsString());
+						if (curr == '\n') {
+							this.line++;
+							this.col = 0;
+						} else if (curr == '*' && this.advanceCurrentIfNextMatches('/')) {
+							commentFinished = true;
+							break;
+						}
+					}
+					if (!commentFinished) {
+						Lox.error(
+							openLine, openCol,
+							"Reached end of file while scanning open comment block.",
+							this.source.getLine(openLine - 1),
+							"scanning"
+						);
+					}
 				} else {
 					this.addToken(SLASH);
 				}
@@ -138,18 +161,20 @@ class Scanner {
 	}
 
 	private void handleString() {
+		int beginLine = this.line;
+		int beginCol = this.col;
 		while (this.peek() != '"' && !this.isAtEnd()) {
 			if (this.peek() == '\n') {
 				this.line++;
-				this.col = 1;
+				this.col = 0;
 			}
 			this.advanceCurrent();
 		}
 		if (this.isAtEnd()) {
 			Lox.error(
-				this.line, this.col,
+				beginLine, beginCol,
 				"Unterminated string.",
-				this.source.getLine(this.line - 1),
+				this.source.getLine(beginLine - 1),
 				"scanning"
 			);
 			return;
@@ -160,10 +185,11 @@ class Scanner {
 		this.addToken(STRING, value);
 	}
 
-	private boolean nextMatches(char expected) {
+	private boolean advanceCurrentIfNextMatches(char expected) {
 		if (isAtEnd()) return false;
 		if (this.source.charAt(this.current) != expected) return false;
 		this.current++;
+		this.col++;
 		return true;
 	}
 
