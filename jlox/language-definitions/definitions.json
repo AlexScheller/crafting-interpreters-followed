@@ -1,0 +1,19 @@
+[
+	{
+		"classname": "Binary",
+		"fields": [
+			{
+				"name": "left",
+				"type": "Expression"
+			},
+			{
+				"name": "operator",
+				"type": "Token"
+			},
+			{
+				"name": "right",
+				"type": "Expression"
+			}
+		]
+	}
+]
