@@ -1,5 +1,6 @@
 # General
 authors-source/
+.vscode/
 
 # Java
 *.class
@@ -7,3 +8,6 @@ authors-source/
 # C
 # Always compile to a "bin" folder so that binaries can be ignored.
 bin/
+
+# C-Sharp
+obj/
