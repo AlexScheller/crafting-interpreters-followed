@@ -8,6 +8,7 @@ namespace CSharpLox
 
 		private readonly SourceCode source;
 		private readonly TokenList tokens;
+		private IErrorReporter errorReporter;
 
 		private int tokenStart = 0;
 		private int current = 0;
@@ -34,10 +35,11 @@ namespace CSharpLox
 			{ "true", TokenType.TRUE }
 		};
 
-		Scanner(string source)
+		Scanner(string source, IErrorReporter errorReporter)
 		{
 			this.source = new SourceCode(source);
 			this.tokens = new TokenList();
+			this.errorReporter = errorReporter;
 		}
 
 		public string StateAsString()
@@ -96,7 +98,7 @@ namespace CSharpLox
 							}
 						}
 						if (!commentFinished) {
-							Lox.Error(
+							this.errorReporter.Error(
 								openLine, openCol,
 								"Reached end of file while scanning open comment block.",
 								this.source.GetLine(openLine - 1),
@@ -122,7 +124,7 @@ namespace CSharpLox
 					} else if (this.IsAlpha(c)) {
 						this.HandleIdentifier();
 					} else {
-						Lox.Error(
+						this.errorReporter.Error(
 							this.line, this.col,
 							"Unexpected character '" + c + "'.",
 							this.source.GetLine(this.line - 1),
@@ -170,7 +172,7 @@ namespace CSharpLox
 				this.AdvanceCurrent();
 			}
 			if (this.IsAtEnd()) {
-				Lox.Error(
+				this.errorReporter.Error(
 					beginLine, beginCol,
 					"Unterminated string.",
 					this.source.GetLine(beginLine - 1),
