@@ -2,7 +2,7 @@ using System;
 
 namespace CSharpLox
 {
-    class ConsoleErrorReporter : IErrorReporter
+    public class ConsoleErrorReporter : IErrorReporter
     {
 
         private bool _Errored = false;

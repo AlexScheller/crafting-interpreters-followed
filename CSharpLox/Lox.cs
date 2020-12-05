@@ -43,9 +43,11 @@ namespace CSharpLox
 			}
 		}
 
-		static void Run(String contents)
+		static void Run(String source)
 		{
-			Console.WriteLine(contents);
+			Scanner scanner = new Scanner(source, errorReporter);
+			scanner.ScanTokens();
+			Console.WriteLine(scanner.TokensAsString());
 		}
 
 	}

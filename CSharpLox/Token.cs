@@ -23,7 +23,9 @@ namespace CSharpLox
 
 		public override string ToString()
 		{
-			return $"<{type} {lexeme} {literal}>";
+			string lexeme = this.lexeme is null ? "" : $" {this.lexeme}";
+			string literal = this.literal is null ? "" : $" {this.literal}";
+			return $"<{type}{lexeme}{literal}>";
 		}
 
 	}

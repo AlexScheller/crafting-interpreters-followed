@@ -36,7 +36,7 @@ namespace CSharpLox
 
 		public string Substring(int begin, int end)
 		{
-			return this.source.Substring(begin, end);
+			return this.source.Substring(begin, end - begin);
 		}
 
 		public string GetLine(int index)

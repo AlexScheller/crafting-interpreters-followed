@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CSharpLox
 {
-	class Scanner
+	public class Scanner
 	{
 
 		private readonly SourceCode source;
@@ -35,7 +35,7 @@ namespace CSharpLox
 			{ "true", TokenType.TRUE }
 		};
 
-		Scanner(string source, IErrorReporter errorReporter)
+		public Scanner(string source, IErrorReporter errorReporter)
 		{
 			this.source = new SourceCode(source);
 			this.tokens = new TokenList();
@@ -52,13 +52,13 @@ namespace CSharpLox
 			return this.tokens.ToString();
 		}
 
-		public void scanTokens()
+		public void ScanTokens()
 		{
 			while(!this.IsAtEnd()) {
 				this.tokenStart = this.current;
 				this.ScanNextToken();
 			}
-			this.tokens.Add(new Token(TokenType.EOF, "", null, this.line, this.col));
+			this.tokens.Add(new Token(TokenType.EOF, null, null, this.line, this.col));
 		}
 
 		public void ScanNextToken()
@@ -86,15 +86,17 @@ namespace CSharpLox
 						bool commentFinished = false;
 						int openLine = this.line;
 						int openCol = this.col;
-						for (char curr = this.AdvanceCurrent(); !this.IsAtEnd(); curr = this.AdvanceCurrent()) {
-							// System.out.println("Parsing comment, curr char: " + curr);
-							// System.out.println(this.stateAsString());
-							if (curr == '\n') {
-								this.line++;
-								this.col = 0;
-							} else if (curr == '*' && this.advanceCurrentIfNextMatches('/')) {
-								commentFinished = true;
-								break;
+						if (!this.IsAtEnd()) {
+							for (char curr = this.AdvanceCurrent(); !this.IsAtEnd(); curr = this.AdvanceCurrent()) {
+								// System.out.println("Parsing comment, curr char: " + curr);
+								// System.out.println(this.stateAsString());
+								if (curr == '\n') {
+									this.line++;
+									this.col = 0;
+								} else if (curr == '*' && this.advanceCurrentIfNextMatches('/')) {
+									commentFinished = true;
+									break;
+								}
 							}
 						}
 						if (!commentFinished) {
