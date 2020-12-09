@@ -1,0 +1,50 @@
+[
+	{
+		"classname": "Binary",
+		"fields": [
+			{
+				"name": "left",
+				"type": "Expression"
+			},
+			{
+				"name": "operation",
+				"type": "Token"
+			},
+			{
+				"name": "right",
+				"type": "Expression"
+			}
+		]
+	},
+	{
+		"classname": "Grouping",
+		"fields": [
+			{
+				"name": "expression",
+				"type": "Expression"
+			}
+		]
+	},
+	{
+		"classname": "Literal",
+		"fields": [
+			{
+				"name": "value",
+				"type": "Object"
+			}
+		]
+	},
+	{
+		"classname": "Unary",
+		"fields": [
+			{
+				"name": "operation",
+				"type": "Token"
+			},
+			{
+				"name": "right",
+				"type": "Expression"
+			}
+		]
+	}
+]
